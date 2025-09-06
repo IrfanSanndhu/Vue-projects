@@ -1,0 +1,175 @@
+openapi: 3.0.3
+info:
+  title: Activity Tracker API
+  description: Simple REST API for Vue.js Activity Tracker project
+  version: 1.0.0
+  contact:
+    name: Irfan Lateef
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local server
+
+paths:
+  /activities:
+    get:
+      summary: Get all tasks
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [all, low, medium, high]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [all, pending, completed]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Activity'
+
+    post:
+      summary: Add a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                priority:
+                  type: string
+                  enum: [low, medium, high]
+                dueDate:
+                  type: string
+                  format: date
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Activity'
+
+  /activities/{id}:
+    get:
+      summary: Get one task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Activity'
+
+    patch:
+      summary: Update a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                priority:
+                  type: string
+                  enum: [low, medium, high]
+                dueDate:
+                  type: string
+                  format: date
+                completed:
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Activity'
+
+    delete:
+      summary: Delete a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Deleted
+
+  /activities/clear-completed:
+    delete:
+      summary: Clear all done tasks
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    Activity:
+      type: object
+      required:
+        - id
+        - text
+        - priority
+        - completed
+        - createdAt
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high]
+        dueDate:
+          type: string
+          format: date
+        completed:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
